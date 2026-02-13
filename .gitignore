@@ -1,0 +1,22 @@
+# Node
+node_modules
+.next
+out
+
+# Env
+.env
+.env.*.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# Python (future API)
+__pycache__/
+*.pyc
+.venv/
+
+# Docker
+docker-data
