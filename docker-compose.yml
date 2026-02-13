@@ -1,0 +1,49 @@
+services:
+  # --- Backend stack (daily) ---
+  api:
+    profiles: ["backend", "full"]
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://postgres:postgres@postgres:5432/logmo
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    profiles: ["backend", "full"]
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=logmo
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - logmo_postgres:/var/lib/postgresql/data
+
+  redis:
+    profiles: ["backend", "full"]
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # --- Web container (only for smoke testing production shape) ---
+  web:
+    profiles: ["full"]
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"   # avoids conflict with local `npm run dev` on 3000
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - api
+
+volumes:
+  logmo_postgres:
